@@ -1,0 +1,5 @@
+name: cap-5602-final-project-group-5
+channels:
+  - defaults
+dependencies:
+  - numpy
