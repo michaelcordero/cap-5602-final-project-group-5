@@ -3,3 +3,8 @@ channels:
   - defaults
 dependencies:
   - numpy
+  - jupyter
+  - pandas
+  - matplotlib
+  - scikit-learn
+  - tensorflow
