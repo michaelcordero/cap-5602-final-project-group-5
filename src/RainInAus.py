@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[18]:
 
 
 # first let's capture the data
@@ -15,7 +15,7 @@ data = data.sort_values(by='Date')
 data.head()
 
 
-# In[2]:
+# In[19]:
 
 
 # format the data
@@ -35,14 +35,14 @@ print(f'X_train: {X_train.shape}, Y_train: {Y_train.shape}')
 print(f'X_test: {X_test.shape}, Y_test: {Y_test.shape}')
 
 
-# In[3]:
+# In[20]:
 
 
 # feed the classifier neural network
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score
 
-mlpc = MLPClassifier(hidden_layer_sizes=(20, 20, 20))
+mlpc = MLPClassifier(hidden_layer_sizes=(20, 20, 20), verbose=1)
 chistory = mlpc.fit(X_train, Y_train)
 yc_prediction = mlpc.predict(X_test)
 mlpc_accuracy = accuracy_score(Y_test, yc_prediction)
@@ -56,7 +56,7 @@ print(f'MLPC Accuracy: {mlpc_accuracy}')
 from sklearn.neural_network import MLPRegressor
 import numpy as np
 
-mlpr = MLPRegressor(hidden_layer_sizes=(20, 20, 20), solver='adam', activation='logistic')
+mlpr = MLPRegressor(hidden_layer_sizes=(20, 20, 20), solver='adam', activation='logistic', verbose=1)
 rhistory = mlpr.fit(X_train, Y_train)
 yr_prediction: np.ndarray = mlpr.predict(X_test)
 yrm_prediction = np.array(list(map(lambda y: 1 if y >= 0.5 else 0, yr_prediction)))
@@ -89,14 +89,19 @@ print(f'MLPK accuracy: {mlpk_accuracy}')
 
 # feature importance
 import pandas as pd
+import matplotlib.pyplot as plt
 import seaborn as sb
 from sklearn.inspection import permutation_importance
 
+
+# plt.use('MacOSX')
+# plt.interactive(True)
 result = permutation_importance(mlpc, X_train, Y_train, n_repeats=10, random_state=42) # only mlpc & mlpr compatible
 feature_importances = result.importances_mean
 feature_names = X_train.columns
 importance_df = pd.DataFrame({'Feature': feature_names, 'Importance': feature_importances}).sort_values(by='Importance', ascending=False)
 sb.barplot(x='Importance', y='Feature', data=importance_df.head(20))
+plt.show()
 
 
 # In[16]:
@@ -108,4 +113,5 @@ import seaborn as sb
 
 conf_matrix = confusion_matrix(Y_test, yc_prediction)
 sb.heatmap(conf_matrix, annot=True, fmt="d")
+plt.show()
 
