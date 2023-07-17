@@ -42,7 +42,7 @@ print(f'X_test: {X_test.shape}, Y_test: {Y_test.shape}')
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score
 
-mlpc = MLPClassifier(hidden_layer_sizes=(20))
+mlpc = MLPClassifier(hidden_layer_sizes=(20, 20, 20))
 chistory = mlpc.fit(X_train, Y_train)
 yc_prediction = mlpc.predict(X_test)
 mlpc_accuracy = accuracy_score(Y_test, yc_prediction)
@@ -56,7 +56,7 @@ print(f'MLPC Accuracy: {mlpc_accuracy}')
 from sklearn.neural_network import MLPRegressor
 import numpy as np
 
-mlpr = MLPRegressor(hidden_layer_sizes=(20), solver='adam', activation='logistic')
+mlpr = MLPRegressor(hidden_layer_sizes=(20, 20, 20), solver='adam', activation='logistic')
 rhistory = mlpr.fit(X_train, Y_train)
 yr_prediction: np.ndarray = mlpr.predict(X_test)
 yrm_prediction = np.array(list(map(lambda y: 1 if y >= 0.5 else 0, yr_prediction)))
@@ -73,14 +73,39 @@ from tensorflow.python.keras.models import Sequential
 from tensorflow.python.keras.layers import Dense
 
 mlpk = Sequential()
-# mlpk.add(Dense(50, activation='relu'))
-# mlpk.add(Dense(25, activation='relu'))
+mlpk.add(Dense(20, activation='relu'))
 mlpk.add(Dense(1, activation='sigmoid'))
 
 # compile and train model
 mlpk.compile(loss=tf.keras.losses.binary_crossentropy, optimizer='sgd', metrics=['accuracy'])
-mlpk.fit(X_train, Y_train, epochs=50)
+mlpk.fit(X_train, Y_train, epochs=10)
 # evaluate the model
 mlpk_loss, mlpk_accuracy = mlpk.evaluate(X_test, Y_test)
 print(f'MLPK accuracy: {mlpk_accuracy}')
+
+
+# In[17]:
+
+
+# feature importance
+import pandas as pd
+import seaborn as sb
+from sklearn.inspection import permutation_importance
+
+result = permutation_importance(mlpc, X_train, Y_train, n_repeats=10, random_state=42) # only mlpc & mlpr compatible
+feature_importances = result.importances_mean
+feature_names = X_train.columns
+importance_df = pd.DataFrame({'Feature': feature_names, 'Importance': feature_importances}).sort_values(by='Importance', ascending=False)
+sb.barplot(x='Importance', y='Feature', data=importance_df.head(20))
+
+
+# In[16]:
+
+
+# confusion matrix
+from sklearn.metrics import confusion_matrix
+import seaborn as sb
+
+conf_matrix = confusion_matrix(Y_test, yc_prediction)
+sb.heatmap(conf_matrix, annot=True, fmt="d")
 
